@@ -1,0 +1,48 @@
+{
+    "name": "drs-server",
+    "version": "1.0.0",
+    "description": "Server to implement the GA4GH DRS (Data Repository Service) API.",
+    "main": "drs.js",
+    "directories": {
+        "lib": "lib",
+        "test": "test"
+    },
+    "homepage": "https://github.com/ihmpdcc/drs-server",
+    "bugs": {
+        "url": "https://github.com/ihmpdcc/drs-server/issues"
+    },
+    "dependencies": {
+        "async": "3.2.1",
+        "commander": "8.2.0",
+        "express": "4.17.1",
+        "inireader": "2.0.0",
+        "lodash": "4.17.21",
+        "log4js": "6.3.0",
+        "morgan": "1.10.0",
+        "mysql": "2.18.1",
+        "string-format": "2.0.0"
+    },
+    "devDependencies": {
+        "chai": "^4.3.4",
+        "eslint": "^7.32.0",
+        "mocha": "^9.1.2"
+    },
+    "keywords": [
+        "rest",
+        "drs",
+        "hmpdacc",
+        "hmpdcc",
+        "ga4gh",
+        "science"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ihmpdcc/drs-server.git"
+    },
+    "scripts": {
+        "test": "NODE_PATH=.:./lib mocha --timeout 10000 test/",
+        "eslint": "eslint -c ./.eslintrc.json --ignore-path ./.eslintignore .; exit 0"
+    },
+    "author": "igs-info@som.umaryland.edu",
+    "license": "MIT"
+}

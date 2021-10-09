@@ -1,0 +1,98 @@
+The following is an explanation of the evolution of the query used in the
+implementation of the HMP DRS server.
+
+# Get the hierarchy
+
+SELECT o.id, o.drs_id, o.name, ob.id AS parent
+FROM objects AS o LEFT OUTER JOIN (
+  containerships c INNER JOIN objects ob ON c.parent_id=ob.id
+) ON o.id = c.object_id ;
+
+===============================================================================
+
+# Get hierarchy for a particular bundle/blob
+
+SELECT o.id, o.drs_id, o.name, ob.drs_id AS parent_drs_id, ob.id AS parent_id
+FROM objects AS o LEFT OUTER JOIN (
+  containerships c INNER JOIN objects ob ON c.parent_id=ob.id
+) ON o.id = c.object_id
+WHERE ob.drs_id='bundle_1';
+
+SELECT o.id, o.drs_id, o.name, ob.drs_id AS parent_drs_id, ob.id AS parent_id
+FROM objects AS o LEFT OUTER JOIN (
+  containerships AS c INNER JOIN objects ob ON c.parent_id=ob.id
+) ON o.id = c.object_id
+WHERE o.drs_id='bundle_1' OR ob.drs_id='bundle_1'
+ORDER BY parent_id
+
+SELECT o.id, o.drs_id, o.name, o.description, o.size, o.mime_type,
+   o.md5_checksum, o.sha256_checksum, o.created_time, o.updated_time, o.version,
+   o.is_blob, ob.drs_id AS parent_drs_id, ob.id AS parent_id 
+FROM objects AS o LEFT OUTER JOIN (
+  containerships c INNER JOIN objects ob ON c.parent_id=ob.id 
+) ON o.id = c.object_id 
+WHERE o.drs_id = "blob_a" OR ob.drs_id="blob_a" 
+ORDER BY parent_id
+
+===============================================================================
+
+# Now left outer join to the access_methods table:
+
+SELECT o.id, o.drs_id, o.name, o.description, o.size, o.mime_type,
+   o.md5_checksum, o.sha256_checksum, o.created_time, o.updated_time, o.version,
+   o.is_blob, ob.drs_id AS parent_drs_id, ob.id AS parent_id, am.url, am.type,
+   am.region
+FROM objects AS o LEFT OUTER JOIN (
+  containerships c INNER JOIN objects ob ON c.parent_id=ob.id
+) ON o.id = c.object_id
+LEFT OUTER JOIN access_methods am on o.id = am.blob_id
+WHERE o.drs_id = "blob_a" OR ob.drs_id="blob_a"
+ORDER BY parent_id;
+
+===============================================================================
+
+# Now, another left join to get the headers
+
+SELECT o.id, o.drs_id, o.name, o.description, o.size, o.mime_type,
+  o.md5_checksum, o.sha256_checksum, o.created_time, o.updated_time, o.version,
+  o.is_blob, ob.drs_id AS parent_drs_id, ob.id AS parent_id, am.url, am.type,
+  am.region, h.name, h.value
+FROM objects AS o LEFT OUTER JOIN (
+  containerships c INNER JOIN objects ob ON c.parent_id=ob.id
+) ON o.id = c.object_id
+LEFT OUTER JOIN access_methods am on o.id = am.blob_id
+LEFT OUTER JOIN headers h on am.id = h.access_method_id
+WHERE o.drs_id = "blob_a" OR ob.drs_id="blob_a"
+ORDER BY parent_id;
+
+===============================================================================
+
+# However, the OR in the above query slows things down according to the
+# execution plan. Faster to turn the above into a union of two queries:
+(SELECT
+  o.id, o.drs_id, o.name, o.description, o.size, o.mime_type,
+  o.md5_checksum, o.sha256_checksum, o.created_time,
+  o.updated_time, o.version, o.is_blob, ob.drs_id AS parent_drs_id,
+  ob.id AS parent_id, am.id AS access_method_id, am.url, am.type,
+  am.region, h.name AS header, h.value
+FROM objects AS o LEFT OUTER JOIN (
+  containerships c INNER JOIN objects ob ON c.parent_id = ob.id
+) ON o.id = c.object_id
+LEFT OUTER JOIN access_methods am ON o.id = am.blob_id
+LEFT OUTER JOIN headers h on am.id = h.access_method_id
+WHERE o.drs_id = 'blob_a'
+ORDER BY parent_id)
+UNION
+(SELECT
+  o.id, o.drs_id, o.name, o.description, o.size, o.mime_type,
+  o.md5_checksum, o.sha256_checksum, o.created_time,
+  o.updated_time, o.version, o.is_blob, ob.drs_id AS parent_drs_id,
+  ob.id AS parent_id, am.id AS access_method_id, am.url, am.type,
+  am.region, h.name AS header, h.value
+FROM objects AS o LEFT OUTER JOIN (
+  containerships c INNER JOIN objects ob ON c.parent_id = ob.id
+) ON o.id = c.object_id
+LEFT OUTER JOIN access_methods am ON o.id = am.blob_id
+LEFT OUTER JOIN headers h on am.id = h.access_method_id
+WHERE ob.drs_id = 'blob_a'
+ORDER BY parent_id);

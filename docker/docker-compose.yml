@@ -1,0 +1,36 @@
+version: "3"
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: drs-server:latest
+    hostname: drs-server
+    ports:
+      - "9999:9999"
+    networks:
+      drs-network:
+        aliases:
+          - server
+    restart: on-failure
+    volumes:
+      - ..:/src
+    environment:
+      - NODE_ENV=development
+  mysql:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    image: drs-db:latest
+    hostname: drs-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+    ports:
+      - "3306:3306"
+    networks:
+      drs-network:
+        aliases:
+          - db
+networks:
+  drs-network:
+    driver: bridge

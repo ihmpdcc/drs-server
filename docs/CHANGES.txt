@@ -1,0 +1,4 @@
+1.0.0
+  * Initial release
+
+  -- Victor <victor73@github.com>  Wed, 06 Sep 2021 15:23:00 -0400
