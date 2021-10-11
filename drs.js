@@ -6,6 +6,9 @@ const log4js = require('log4js');
 const os = require('os');
 const path = require('path');
 const drs_utils = require('drs_utils');
+const format = require('string-format');
+
+format.extend(String.prototype);
 
 let config_path = null;
 let working_path = null;
@@ -120,14 +123,11 @@ function determine_worker_count(config) {
 function start_master(config) {
     console.log('DRS_ROOT: ' + drs_utils.get_drs_root());
 
-    var workers_ready = 0;
-    var worker_idx;
-
-    var workers_array = [];
-
-    var ready_data = {};
-
-    var workers = determine_worker_count(config);
+    let workers_ready = 0;
+    let worker_idx;
+    let workers_array = [];
+    let ready_data = {};
+    let workers = determine_worker_count(config);
 
     if (workers === 1) {
         console.log('Running on a single CPU.');
@@ -142,16 +142,14 @@ function start_master(config) {
         workers_array.push(worker);
 
         worker.on('message', function(msg) { // jshint ignore:line
-            var type;
-
-            if (msg.hasOwnProperty('cmd') && msg['cmd'] === 'abort') {
+            if (_.has(msg, 'cmd') && msg['cmd'] === 'abort') {
                 var reason = msg['reason'];
                 console.error('Aborting execution. Reason: ' + reason);
                 letWorkersDie = true;
                 process.exit(1);
             }
 
-            if (msg.hasOwnProperty('cmd') && msg['cmd'] === 'init_completed') {
+            if (_.has(msg, 'cmd') && msg['cmd'] === 'init_completed') {
                 workers_ready++;
 
                 if (workers_ready === workers) {
@@ -170,22 +168,9 @@ function start_master(config) {
         });
     }
 
-    // This is for node.js .6.x, in wich the event is called 'death'.
-    cluster.on('death', function(worker) {
+    cluster.on('exit', function() {
         if (! letWorkersDie) {
-            console.error('Worker ' + process.pid +
-                          ' died. Starting a replacement...');
-            cluster.fork();
-        }
-    });
-
-    // For node 0.8.x, the 'death' event was renamed to 'exit' on the cluster
-    // object. See here:
-    // https://github.com/joyent/node/wiki/API-changes-between-v0.6-and-v0.8
-    cluster.on('exit', function(worker) {
-        if (! letWorkersDie) {
-            console.error('Worker ' + process.pid +
-                          ' died. Starting a replacement...');
+            console.error('Worker {} died. Starting a replacement...'.format(process.pid));
             cluster.fork();
         }
     });
@@ -214,7 +199,7 @@ function shutdown(workers) {
 function destroy_workers(workers) {
     // Iterate through the workers, and destroy each of them.
     _.each(workers, function(worker) {
-        console.error('Destroying worker ' + process.pid);
+        console.error('Destroying worker {}.'.format(process.pid));
         worker.destroy();
     });
 }
@@ -240,17 +225,31 @@ function show_ready(ready_data) {
 
     // Configuration for encrypted operation
     var https = false;
-    if (https_enabled !== 'undefined' && https_enabled !== null &&
+    if ((! _.isNil(https_enabled)) &&
            (https_enabled === 'true' || https_enabled === 'yes')) {
         https = true;
     }
 
-    console.log('Running on node.js version: ' + process.version);
-    console.log('Workers being used: ' + worker_count);
-    console.log('Listening on server:port : ' + address + ':' + port);
+    console.log('Running on node.js version: {}'.format(process.version));
+    console.log('Workers being used: {}'.format(worker_count));
+    console.log('HTTPS enabled: {}'.format(https));
+    console.log('Listening on server:port : {}:{}'.format(address, port));
     console.log('===============================================');
     console.log('Welcome to');
     console.log('HMP Data Repository Service (DRS)\n');
+
+    console.log(
+        Buffer.from(
+            'ICBfICAgIF8gX18gIF9fIF9fX19fICAgIF9fX19fICBfX19fXyAgIF9fX1' +
+            '9fICAKIHwgfCAgfCB8ICBcLyAgfCAgX18gXCAgfCAgX18gXHwgIF9fIFwg' +
+            'LyBfX19ffCAKIHwgfF9ffCB8IFwgIC8gfCB8X18pIHwgfCB8ICB8IHwgfF' +
+            '9fKSB8IChfX18KIHwgIF9fICB8IHxcL3wgfCAgX19fLyAgfCB8ICB8IHwg' +
+            'IF8gIC8gXF9fXyBcICAKIHwgfCAgfCB8IHwgIHwgfCB8ICAgICAgfCB8X1' +
+            '98IHwgfCBcIFwgX19fXykgfAogfF98ICB8X3xffCAgfF98X3wgICAgICB8' +
+            'X19fX18vfF98ICBcX1xfX19fXy8=', 'base64').toString('utf8')
+    );
+
+    console.log('\n');
     console.log('===============================================');
 }
 

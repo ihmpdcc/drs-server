@@ -45,46 +45,118 @@ describe('access_method', function() {
         done();
     });
 
-    it('invalid_instantiation', function(done) {
+    it('add_header invalid args', function(done) {
+        let am = new AccessMethod(dummy_s3_path, 's3');
+
+        // Add header with a null
         assert.throws(function() {
-            let am = new AccessMethod();
+            am.add_header(null, 'value');
+        }, /.*string.*/);
+
+        // Switch position of the null
+        assert.throws(function() {
+            am.add_header('header', null);
+        }, /.*string.*/);
+
+        // Use numbers instead of nulls
+        assert.throws(function() {
+            am.add_header(1234, 4567);
+        }, /.*string.*/);
+
+        done();
+    });
+
+    it('invalid instantiation', function(done) {
+        let am = null;
+
+        assert.throws(function() {
+            am = new AccessMethod();
         }, /.+provide.+url/);
 
         assert.throws(function() {
-            let am = new AccessMethod(dummy_s3_path);
+            am = new AccessMethod(dummy_s3_path);
         }, /.+provide.+type/);
 
         assert.throws(function() {
-            let am = new AccessMethod(null, null);
+            am = new AccessMethod(null, null);
         }, /.+provide.+url/);
 
         done();
     });
 
-    it('invalid_type', function(done) {
-        let am = null;
-
+    it('invalid type instantiation', function(done) {
         assert.throws(function() {
-            am = new AccessMethod(dummy_s3_path, 'blah');
+            let am = new AccessMethod(dummy_s3_path, 'blah');
         }, /Invalid/);
 
         done();
     });
 
-    it('set_region', function(done) {
+    it('region accessors', function(done) {
         let type = 's3';
         let am = new AccessMethod(dummy_s3_path, type);
 
         let region = 'us-east-1';
-        am.set_region(region);
+        am.region = region;
 
-        let obj = am.to_obj();
-
-        assert.property(obj, 'region');
-        assert.equal(obj['region'], region);
+        assert.equal(am.region, region, 'Region accessors work.');
 
         done();
     });
+
+    it('region must be a string', function(done) {
+        let type = 's3';
+        let am = new AccessMethod(dummy_s3_path, type);
+
+        assert.throws(function() {
+            am.region = 1234;
+        }, /.*string.*/);
+
+        done();
+    });
+
+    it('type accessors', function(done) {
+        let am = new AccessMethod(dummy_s3_path, 's3');
+
+        let new_type = 'https';
+        am.type = new_type;
+
+        assert.equal(am.type, new_type, 'type accessors work.');
+
+        done();
+    });
+
+    it('type must be a string', function(done) {
+        let am = new AccessMethod(dummy_s3_path, 's3');
+
+        assert.throws(function() {
+            am.type = 1234;
+        }, /.*string.*/);
+
+        done();
+    });
+
+    it('url accessors', function(done) {
+        let am = new AccessMethod(dummy_s3_path, 's3');
+
+        let new_url = 'https//path/to/something';
+        am.url = new_url;
+
+        assert.equal(am.url, new_url, 'url accessors work.');
+
+        done();
+    });
+
+    it('url must be a string', function(done) {
+        let am = new AccessMethod(dummy_s3_path, 's3');
+
+        assert.throws(function() {
+            am.url = 1234;
+        }, /.*string.*/);
+
+        done();
+    });
+
 
     it('to_json', function(done) {
         let type = 's3';
