@@ -13,9 +13,15 @@ let retriever = null;
 exports.init = function(emitter) {
     logger.debug('In ' + path.basename(__filename) + ' init().');
 
-    retriever = ObjectRetrieve.getInstance(config);
+    retriever = ObjectRetrieve.get_instance(config);
 
-    emitter.emit('object_handler_initialized');
+    retriever.establish_db_connection(function(success, err) {
+        if (err) {
+            emitter.emit('object_handler_aborted', err);
+        } else {
+            emitter.emit('object_handler_initialized');
+        }
+    });
 };
 
 exports.get_object_access_url = function(request, response) {

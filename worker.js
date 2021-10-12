@@ -38,8 +38,7 @@ function launch(config) {
     // Check if SSL/TLS should be enabled or not.
     let https_enabled = config.value('global', 'https_enabled');
 
-    if (https_enabled !== undefined && https_enabled !== null &&
-            (https_enabled === 'true' || https_enabled === 'yes')) {
+    if ((! _.isNil(https_enabled)) && (https_enabled === 'true' || https_enabled === 'yes')) {
         https_enabled = true;
     } else {
         https_enabled = false;
@@ -56,9 +55,11 @@ function launch(config) {
     app.use(function(req, res, next) {
         var data = '';
         req.setEncoding('utf8');
+
         req.on('data', function(chunk) {
             data += chunk;
         });
+
         req.on('end', function() {
             req.rawBody = data;
             next();
@@ -73,15 +74,13 @@ function launch(config) {
     var port = config.value('global', 'port');
 
     // Check that we have some valid settings.
-    if (bind_address === undefined ||
-            bind_address === null ||
-            bind_address.length === 0) {
+    if (_.isNil(bind_address) || bind_address.length === 0) {
         var bind_err = "The 'bind_address' setting is not configured.";
         console.log(bind_err);
         process.send({ cmd: 'abort', reason: bind_err });
     }
 
-    if (port === undefined || port === null || port.length === 0) {
+    if (_.isNil(port) || port.length === 0) {
         var port_err = "The 'port' setting is not configured.";
         console.log(port_err);
         process.send({ cmd: 'abort', reason: port_err });
@@ -94,7 +93,7 @@ function launch(config) {
     });
 
     process.on('message', function(msg) {
-        if (msg && msg.hasOwnProperty('cmd')) {
+        if (msg && _.has(msg, 'cmd')) {
             logger.info('Got a message from the master: ' +  msg['cmd']);
         }
     });
