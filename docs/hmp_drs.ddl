@@ -70,7 +70,7 @@ DROP TABLE IF EXISTS `objects`;
 CREATE TABLE `objects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `drs_id` varchar(64) NOT NULL,
-  `name` varchar(64) DEFAULT NULL,
+  `name` varchar(128) DEFAULT NULL,
   `description` varchar(512) DEFAULT NULL,
   `size` bigint(20) NOT NULL,
   `mime_type` varchar(32) DEFAULT NULL,
