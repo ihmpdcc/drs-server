@@ -1,3 +1,14 @@
+1.1.0
+  * General improvements and refactoring of code.
+  * Made changes to make the response compatible with the Cavatica system, even though the previous
+    response adhered to the DRS specification. The Cavatica system presently requires that the DRS
+    servers using the fourth access method, which requires an access_id to be provided and then
+    the a URL to the bytes returned from the /access endpoint. The previous version was using
+    a completely open model for public data (described as "public content" in the GA4GH DRS
+    documentation).
+
+  -- Victor <victor73@github.com>  Fri, 29 Apr 2022 12:00:00 -0400
+
 1.0.0
   * Initial release
 
