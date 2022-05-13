@@ -10,5 +10,7 @@ exports.set_routes = function(app) {
     // Object handler functions
     make_drs(app, '/objects/:object_id', obj_handler.get_object);
     make_drs(app, '/objects/:object_id/access/:access_id', obj_handler.get_object_access_url);
+
+    // This is an extension to the spec to allow for monitorning of the health of the server
     app.get('/status', obj_handler.get_status);
 };
