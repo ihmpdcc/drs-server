@@ -6,6 +6,30 @@ let DrsObject = require('drs-object');
 let AccessMethod = require('access-method');
 
 describe('drs_object', function() {
+    it('instantiation without domain set', function(done) {
+        assert.throws(function() {
+            let blob = new DrsObject(1, 'blob_a', 123456);
+        }, /.*domain.*/);
+
+        done();
+    });
+
+    it('domain set', function(done) {
+        let domain = DrsObject.domain;
+        let test_domain = 'drs.server.org';
+
+        assert.isNull(domain);
+
+        assert.doesNotThrow(function() {
+            DrsObject.domain = test_domain;
+        });
+
+        assert.isNotNull(DrsObject.domain);
+        assert.equal(DrsObject.domain, test_domain);
+
+        done();
+    });
+
     it('instantiation', function(done) {
         try {
             let blob = new DrsObject(1, 'blob_a', 123456);
