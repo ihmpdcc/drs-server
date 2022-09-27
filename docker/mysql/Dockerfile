@@ -4,6 +4,8 @@ ENV MYSQL_DATABASE hmp_drs
 
 ENV MYSQL_ROOT_PASSWORD=1234
 
-COPY ./set-configuration.sql /docker-entrypoint-initdb.d/
+RUN rm -rf /var/lib/mysql
 
-COPY ./hmp-drs.sql /docker-entrypoint-initdb.d/
+COPY ./1-set-configuration.sql /docker-entrypoint-initdb.d/
+
+COPY ./2-hmp-drs.sql /docker-entrypoint-initdb.d/

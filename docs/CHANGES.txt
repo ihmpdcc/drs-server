@@ -1,3 +1,15 @@
+1.1.1
+  * Reworked startup of the server using a shell script that first checks
+    if the node_modules directory is present. If the directory is NOT present,
+    the `npm install` command is run to install the dependencies the server
+    needs.
+  * Tweaked names of the SQL files used to build the mysql database container
+    to ensure they are loaded in the correct order and forced their use.
+  * Correction to the command line arguments used to start the server in the
+    server container.
+
+  -- Victor <victor73@github.com>  Mon, 26 Sep 2022 18:00:00 -0400
+
 1.1.0
   * General improvements and refactoring of code.
   * Made changes to make the response compatible with the Cavatica system, even though the previous

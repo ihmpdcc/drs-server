@@ -12,7 +12,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Update Ubuntu Software repository
 RUN apt-get update -y
 
-# install curl 
+# install curl
 RUN apt-get install -y curl
 
 # Run the installation script
@@ -25,10 +25,12 @@ RUN apt-get install -y nodejs && \
 
 RUN mkdir /src
 
+COPY startup.sh /
+
 WORKDIR /src
 
 EXPOSE 9999
 
 ENV NODE_PATH=.:./lib
 
-CMD [ "node", "drs.js", "--conf", "./conf/config-docker.ini" ]
+CMD [ "/bin/bash", "/startup.sh" ]
