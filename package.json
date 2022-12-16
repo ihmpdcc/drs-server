@@ -12,20 +12,20 @@
         "url": "https://github.com/ihmpdcc/drs-server/issues"
     },
     "dependencies": {
-        "async": "3.2.1",
-        "commander": "8.2.0",
-        "express": "4.17.1",
-        "inireader": "2.0.0",
+        "async": "3.2.4",
+        "commander": "9.4.1",
+        "express": "4.18.2",
+        "inireader": "2.1.0",
         "lodash": "4.17.21",
-        "log4js": "6.3.0",
+        "log4js": "6.7.1",
         "morgan": "1.10.0",
         "mysql": "2.18.1",
         "string-format": "2.0.0"
     },
     "devDependencies": {
-        "chai": "^4.3.4",
-        "eslint": "^7.32.0",
-        "mocha": "^9.1.2"
+        "chai": "4.3.7",
+        "eslint": "8.29.0",
+        "mocha": "10.2.0"
     },
     "keywords": [
         "rest",
